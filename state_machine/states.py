@@ -58,7 +58,7 @@ def transition(state: str, next_state: str, rules: dict) -> str:
         raise TransitionException(state, next_state)
 
 
-def next_states(state: str, rules: dict) -> list:
+def get_next_states(state: str, rules: dict) -> list:
     """Return a list of all the next states.
     """
     states = rules[state].get('next', [])
