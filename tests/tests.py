@@ -76,6 +76,30 @@ class TestStateMachine(unittest.TestCase):
             room_state = states.transition(room_state, 'too hot', temperature_states)
         self.assertEqual(room_state, 'too cold')
 
+    def test_get_next_states(self):
+        temperature_states = {
+            'too hot': {
+                'next': ['just right'],
+                'prev': ['just right'],
+            },
+            'too cold': {
+                'next': ['just right'],
+                'prev': ['just right'],
+            },
+            'just right': {
+                'next': ['too hot', 'too cold'],
+                'prev': ['too hot', 'too cold'],
+            }
+        }
+        room_state = 'just right'
+        self.assertEqual(states.get_next_states(room_state, temperature_states), ['too hot', 'too cold'])
+        room_state = states.transition(room_state, 'too cold', temperature_states)
+        self.assertEqual(states.get_next_states(room_state, temperature_states), ['just right'])
+        room_state = states.transition(room_state, 'just right', temperature_states)
+        room_state = states.transition(room_state, 'too hot', temperature_states)
+        self.assertEqual(states.get_next_states(room_state, temperature_states), ['just right'])
+        self.assertNotEqual(states.get_next_states(room_state, temperature_states), ['just right', 'too cold'])
+
 
 if __name__ == '__main__':
     unittest.main()
