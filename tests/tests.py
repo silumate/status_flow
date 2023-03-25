@@ -1,11 +1,11 @@
 import unittest
-from state_machine.state_machine import transition, get_next_states, TransitionException
+from status_flow.status_flow import transition, get_next_statuses, TransitionException
 
 
-class TestStateMachine(unittest.TestCase):
+class TestStatusFlow(unittest.TestCase):
 
     def test_temperature_transition(self):
-        temperature_state_def = {
+        temperature_status_rules = {
             'too hot': {
                 'next': ['just right'],
             },
@@ -16,16 +16,16 @@ class TestStateMachine(unittest.TestCase):
                 'next': ['too hot', 'too cold'],
             }
         }
-        room_state = 'just right'
-        room_state = transition(room_state, 'too hot', temperature_state_def)
-        self.assertEqual(room_state, 'too hot')
-        room_state = transition(room_state, 'just right', temperature_state_def)
-        self.assertEqual(room_state, 'just right')
-        room_state = transition(room_state, 'too cold', temperature_state_def)
-        self.assertEqual(room_state, 'too cold')
+        room_status = 'just right'
+        room_status = transition(room_status, 'too hot', temperature_status_rules)
+        self.assertEqual(room_status, 'too hot')
+        room_status = transition(room_status, 'just right', temperature_status_rules)
+        self.assertEqual(room_status, 'just right')
+        room_status = transition(room_status, 'too cold', temperature_status_rules)
+        self.assertEqual(room_status, 'too cold')
 
     def test_kanban_transition(self):
-        kanban_state_def = {
+        kanban_status_rules = {
             'todo': {
                 'next': ['*'],
             },
@@ -36,16 +36,16 @@ class TestStateMachine(unittest.TestCase):
                 'next': ['*'],
             },
         }
-        jira_issue_state = 'todo'
-        jira_issue_state = transition(jira_issue_state, 'doing', kanban_state_def)
-        self.assertEqual(jira_issue_state, 'doing')
-        jira_issue_state = transition(jira_issue_state, 'done', kanban_state_def)
-        self.assertEqual(jira_issue_state, 'done')
-        jira_issue_state = transition(jira_issue_state, 'todo', kanban_state_def)
-        self.assertEqual(jira_issue_state, 'todo')
+        jira_issue_status = 'todo'
+        jira_issue_status = transition(jira_issue_status, 'doing', kanban_status_rules)
+        self.assertEqual(jira_issue_status, 'doing')
+        jira_issue_status = transition(jira_issue_status, 'done', kanban_status_rules)
+        self.assertEqual(jira_issue_status, 'done')
+        jira_issue_status = transition(jira_issue_status, 'todo', kanban_status_rules)
+        self.assertEqual(jira_issue_status, 'todo')
 
     def test_illegal_transition(self):
-        temperature_state_def = {
+        temperature_status_rules = {
             'too hot': {
                 'next': ['just right'],
             },
@@ -56,19 +56,21 @@ class TestStateMachine(unittest.TestCase):
                 'next': ['too hot', 'too cold'],
             }
         }
-        room_state = 'too hot'
+        room_status = 'too hot'
+        # from too hot, you can only go to just right
         with self.assertRaises(TransitionException):
-            room_state = transition(room_state, 'too cold', temperature_state_def)
-        self.assertEqual(room_state, 'too hot')
-        room_state = transition(room_state, 'just right', temperature_state_def)
-        room_state = transition(room_state, 'too cold', temperature_state_def)
-        self.assertEqual(room_state, 'too cold')
+            room_status = transition(room_status, 'too cold', temperature_status_rules)
+        self.assertEqual(room_status, 'too hot')
+        room_status = transition(room_status, 'just right', temperature_status_rules)
+        room_status = transition(room_status, 'too cold', temperature_status_rules)
+        self.assertEqual(room_status, 'too cold')
+        # from too cold, you can only go to just right
         with self.assertRaises(TransitionException):
-            room_state = transition(room_state, 'too hot', temperature_state_def)
-        self.assertEqual(room_state, 'too cold')
+            room_status = transition(room_status, 'too hot', temperature_status_rules)
+        self.assertEqual(room_status, 'too cold')
 
-    def test_get_next_states(self):
-        temperature_state_def = {
+    def test_get_next_statuses(self):
+        temperature_status_rules = {
             'too hot': {
                 'next': ['just right'],
             },
@@ -79,14 +81,14 @@ class TestStateMachine(unittest.TestCase):
                 'next': ['too hot', 'too cold'],
             }
         }
-        room_state = 'just right'
-        self.assertEqual(get_next_states(room_state, temperature_state_def), ['too hot', 'too cold'])
-        room_state = transition(room_state, 'too cold', temperature_state_def)
-        self.assertEqual(get_next_states(room_state, temperature_state_def), ['just right'])
-        room_state = transition(room_state, 'just right', temperature_state_def)
-        room_state = transition(room_state, 'too hot', temperature_state_def)
-        self.assertEqual(get_next_states(room_state, temperature_state_def), ['just right'])
-        self.assertNotEqual(get_next_states(room_state, temperature_state_def), ['just right', 'too cold'])
+        room_status = 'just right'
+        self.assertEqual(get_next_statuses(room_status, temperature_status_rules), ['too hot', 'too cold'])
+        room_status = transition(room_status, 'too cold', temperature_status_rules)
+        self.assertEqual(get_next_statuses(room_status, temperature_status_rules), ['just right'])
+        room_status = transition(room_status, 'just right', temperature_status_rules)
+        room_status = transition(room_status, 'too hot', temperature_status_rules)
+        self.assertEqual(get_next_statuses(room_status, temperature_status_rules), ['just right'])
+        self.assertNotEqual(get_next_statuses(room_status, temperature_status_rules), ['just right', 'too cold'])
 
 
 if __name__ == '__main__':
