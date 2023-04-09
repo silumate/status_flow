@@ -53,6 +53,9 @@ def transition(status: str, next_status: str, rules: dict) -> str:
     """
     legal_statuses = rules[status].get('next', [])
     if '*' in legal_statuses or next_status in legal_statuses:
+        callbacks = rules[next_status].get('callback', [])
+        for fn in callbacks:
+            fn(status)
         return next_status
     else:
         raise TransitionException(status, next_status)
@@ -66,3 +69,13 @@ def get_next_statuses(status: str, rules: dict) -> list:
         return list(rules.keys())
     else:
         return next_statuses
+
+
+def add_post_transition_callback(status: str, callback: callable, rules: dict) -> None:
+    """Add a callback to the rules.
+    """
+    if 'callback' not in rules[status]:
+        rules[status]['callback'] = []
+    callbacks = rules[status].get('callback')
+    callbacks.append(callback)
+
