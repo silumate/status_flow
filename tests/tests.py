@@ -1,5 +1,5 @@
 import unittest
-from status_flow.status_flow import transition, get_next_statuses, TransitionException
+from status_flow.status_flow import transition, get_next_statuses, TransitionException, add_post_transition_callback
 
 
 class TestStatusFlow(unittest.TestCase):
@@ -89,6 +89,44 @@ class TestStatusFlow(unittest.TestCase):
         room_status = transition(room_status, 'too hot', temperature_status_rules)
         self.assertEqual(get_next_statuses(room_status, temperature_status_rules), ['just right'])
         self.assertNotEqual(get_next_statuses(room_status, temperature_status_rules), ['just right', 'too cold'])
+
+    def test_callback(self):
+        temperature_status_rules = {
+            'too hot': {
+                'next': ['just right'],
+            },
+            'too cold': {
+                'next': ['just right'],
+            },
+            'just right': {
+                'next': ['too hot', 'too cold'],
+            }
+        }
+        room_status = 'just right'
+        msg = None
+
+        def too_hot_callback(prev_state: str):
+            nonlocal msg
+            msg = f'It\'s too hot and it was {prev_state} before'
+
+        def too_cold_callback(prev_state: str):
+            nonlocal msg
+            msg = f'It\'s too cold and it was {prev_state} before'
+
+        def just_right_callback(prev_state: str):
+            nonlocal msg
+            msg = f'It\'s just right and it was {prev_state} before'
+
+        add_post_transition_callback('too hot', too_hot_callback, temperature_status_rules)
+        add_post_transition_callback('too cold', too_cold_callback, temperature_status_rules)
+        add_post_transition_callback('just right', just_right_callback, temperature_status_rules)
+
+        room_status = transition(room_status, 'too hot', temperature_status_rules)
+        self.assertEqual(msg, 'It\'s too hot and it was just right before')
+        room_status = transition(room_status, 'just right', temperature_status_rules)
+        self.assertEqual(msg, 'It\'s just right and it was too hot before')
+        room_status = transition(room_status, 'too cold', temperature_status_rules)
+        self.assertEqual(msg, 'It\'s too cold and it was just right before')
 
 
 if __name__ == '__main__':
