@@ -71,7 +71,7 @@ def get_next_statuses(status: str, rules: dict) -> list:
         return next_statuses
 
 
-def add_post_transition_callback(status: str, callback: callable, rules: dict) -> None:
+def add_transition_callback(status: str, callback: callable, rules: dict) -> None:
     """Add a callback to the rules.
     """
     if 'callback' not in rules[status]:

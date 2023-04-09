@@ -1,5 +1,5 @@
 import unittest
-from status_flow.status_flow import transition, get_next_statuses, TransitionException, add_post_transition_callback
+from status_flow.status_flow import transition, get_next_statuses, TransitionException, add_transition_callback
 
 
 class TestStatusFlow(unittest.TestCase):
@@ -117,9 +117,9 @@ class TestStatusFlow(unittest.TestCase):
             nonlocal msg
             msg = f'It\'s just right and it was {prev_state} before'
 
-        add_post_transition_callback('too hot', too_hot_callback, temperature_status_rules)
-        add_post_transition_callback('too cold', too_cold_callback, temperature_status_rules)
-        add_post_transition_callback('just right', just_right_callback, temperature_status_rules)
+        add_transition_callback('too hot', too_hot_callback, temperature_status_rules)
+        add_transition_callback('too cold', too_cold_callback, temperature_status_rules)
+        add_transition_callback('just right', just_right_callback, temperature_status_rules)
 
         room_status = transition(room_status, 'too hot', temperature_status_rules)
         self.assertEqual(msg, 'It\'s too hot and it was just right before')
