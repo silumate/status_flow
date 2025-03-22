@@ -1,4 +1,4 @@
-"""status machine status.
+"""status machine.
 
 Given rules on which status transitions are legal,
 facilitate status transitions.
