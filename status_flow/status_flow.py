@@ -35,6 +35,9 @@ example rules:
 
 """
 
+# Constants
+CALLBACK_KEY = '_callback'
+
 
 class TransitionException(Exception):
     """Exception for invalid transitions.
@@ -80,7 +83,7 @@ class Status:
         """
         legal_statuses = self.rules[self.current].get('next', [])
         if '*' in legal_statuses or next_status in legal_statuses:
-            callbacks = self.rules[next_status].get('callback', [])
+            callbacks = self.rules[next_status].get(CALLBACK_KEY, [])
             for fn in callbacks:
                 fn(self.current)
             self.current = next_status
@@ -107,8 +110,8 @@ class Status:
             status: The status to add the callback for.
             callback: A callable that takes the previous status as an argument.
         """
-        if 'callback' not in self.rules[status]:
-            self.rules[status]['callback'] = []
-        callbacks = self.rules[status].get('callback')
+        if CALLBACK_KEY not in self.rules[status]:
+            self.rules[status][CALLBACK_KEY] = []
+        callbacks = self.rules[status].get(CALLBACK_KEY)
         callbacks.append(callback)
 
