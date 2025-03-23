@@ -7,29 +7,23 @@ example rules:
         kanban_status = {
             'todo': {
                 'next': ['*'],
-                'prev': ['*'],
             },
             'doing': {
                 'next': ['*'],
-                'prev': ['*'],
             },
             'done': {
                 'next': ['*'],
-                'prev': ['*'],
             },
         }
         temperature_status = {
             'too hot': {
                 'next': ['just right'],
-                'prev': ['just right'],
             },
             'too cold': {
                 'next': ['just right'],
-                'prev': ['just right'],
             },
             'just right': {
                 'next': ['too hot', 'too cold'],
-                'prev': ['too hot', 'too cold'],
             }
         }
 

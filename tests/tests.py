@@ -73,18 +73,7 @@ class TestStatusClass(unittest.TestCase):
         self.assertNotEqual(room_status.get_next_statuses(), ['just right', 'too cold'])
     
     def test_status_class_callback(self):
-        temperature_status_rules = {
-            'too hot': {
-                'next': ['just right'],
-            },
-            'too cold': {
-                'next': ['just right'],
-            },
-            'just right': {
-                'next': ['too hot', 'too cold'],
-            }
-        }
-        room_status = Status('just right', temperature_status_rules)
+        room_status = Status('just right', copy.deepcopy(TEMPERATURE_STATUS_RULES))
         msg = None
 
         def too_hot_callback(prev_state: str):
