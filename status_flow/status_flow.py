@@ -60,8 +60,10 @@ class Status:
             initial_status: The initial status.
             rules: A dictionary defining the rules for transitions.
         """
-        self.current = initial_status
         self.rules = rules
+        self.current = initial_status
+        self.prev = None
+        
     
     def transition(self, next_status: str) -> str:
         """Transition to the next status based on the current status and the rules.
@@ -78,10 +80,11 @@ class Status:
         legal_statuses = self.rules[self.current].get('next', [])
         if '*' in legal_statuses or next_status in legal_statuses:
             callbacks = self.rules[next_status].get(CALLBACK_KEY, [])
-            for fn in callbacks:
-                fn(self.current)
+            self.prev = self.current
             self.current = next_status
-            return self.current
+            for fn in callbacks:
+                fn(self)
+            return self
         else:
             raise TransitionException(self.current, next_status)
     

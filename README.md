@@ -54,8 +54,8 @@ room_status.transition('too hot')
 print(room_status.current)  # 'too hot'
 
 # Add a callback
-def too_hot_callback(prev_state):
-    print(f"It's too hot now! It was {prev_state} before.")
+def too_hot_callback(status):
+    print(f"It's too hot now! It was {status.prev} before.")
 
 room_status.add_transition_callback('too hot', too_hot_callback)
 ```

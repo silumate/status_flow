@@ -76,17 +76,17 @@ class TestStatusClass(unittest.TestCase):
         room_status = Status('just right', copy.deepcopy(TEMPERATURE_STATUS_RULES))
         msg = None
 
-        def too_hot_callback(prev_state: str):
+        def too_hot_callback(status: Status):
             nonlocal msg
-            msg = f'It\'s too hot and it was {prev_state} before'
+            msg = f'It\'s too hot and it was {status.prev} before'
 
-        def too_cold_callback(prev_state: str):
+        def too_cold_callback(status: Status):
             nonlocal msg
-            msg = f'It\'s too cold and it was {prev_state} before'
+            msg = f'It\'s too cold and it was {status.prev} before'
 
-        def just_right_callback(prev_state: str):
+        def just_right_callback(status: Status):
             nonlocal msg
-            msg = f'It\'s just right and it was {prev_state} before'
+            msg = f'It\'s just right and it was {status.prev} before'
 
         room_status.add_transition_callback('too hot', too_hot_callback)
         room_status.add_transition_callback('too cold', too_cold_callback)
