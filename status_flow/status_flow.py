@@ -48,34 +48,67 @@ class TransitionException(Exception):
         return f'Invalid transition from {self.curr_status} to {self.next_status}'
 
 
-def transition(status: str, next_status: str, rules: dict) -> str:
-    """Transition to the next status based on the current status and the rules.
+class Status:
+    """Class representing a status with transition rules.
+    
+    This class encapsulates the current status and the rules for transitions.
+    It provides methods for transitioning between statuses, getting next possible
+    statuses, and adding callbacks.
     """
-    legal_statuses = rules[status].get('next', [])
-    if '*' in legal_statuses or next_status in legal_statuses:
-        callbacks = rules[next_status].get('callback', [])
-        for fn in callbacks:
-            fn(status)
-        return next_status
-    else:
-        raise TransitionException(status, next_status)
-
-
-def get_next_statuses(status: str, rules: dict) -> list:
-    """Return a list of all the next status.
-    """
-    next_statuses = rules[status].get('next', [])
-    if '*' in next_statuses:
-        return list(rules.keys())
-    else:
-        return next_statuses
-
-
-def add_transition_callback(status: str, callback: callable, rules: dict) -> None:
-    """Add a callback to the rules.
-    """
-    if 'callback' not in rules[status]:
-        rules[status]['callback'] = []
-    callbacks = rules[status].get('callback')
-    callbacks.append(callback)
+    
+    def __init__(self, initial_status: str, rules: dict):
+        """Initialize a Status object.
+        
+        Args:
+            initial_status: The initial status.
+            rules: A dictionary defining the rules for transitions.
+        """
+        self.current = initial_status
+        self.rules = rules
+    
+    def transition(self, next_status: str) -> str:
+        """Transition to the next status based on the current status and the rules.
+        
+        Args:
+            next_status: The status to transition to.
+            
+        Returns:
+            The new status after the transition.
+            
+        Raises:
+            TransitionException: If the transition is not allowed.
+        """
+        legal_statuses = self.rules[self.current].get('next', [])
+        if '*' in legal_statuses or next_status in legal_statuses:
+            callbacks = self.rules[next_status].get('callback', [])
+            for fn in callbacks:
+                fn(self.current)
+            self.current = next_status
+            return self.current
+        else:
+            raise TransitionException(self.current, next_status)
+    
+    def get_next_statuses(self) -> list:
+        """Return a list of all the next possible statuses.
+        
+        Returns:
+            A list of status names.
+        """
+        next_statuses = self.rules[self.current].get('next', [])
+        if '*' in next_statuses:
+            return list(self.rules.keys())
+        else:
+            return next_statuses
+    
+    def add_transition_callback(self, status: str, callback: callable) -> None:
+        """Add a callback to be executed when transitioning to the specified status.
+        
+        Args:
+            status: The status to add the callback for.
+            callback: A callable that takes the previous status as an argument.
+        """
+        if 'callback' not in self.rules[status]:
+            self.rules[status]['callback'] = []
+        callbacks = self.rules[status].get('callback')
+        callbacks.append(callback)
 
