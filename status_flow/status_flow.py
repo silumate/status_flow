@@ -42,7 +42,7 @@ class TransitionException(Exception):
         self.next_status = next_status
 
     def __str__(self):
-        return f'Invalid transition from {self.curr_status} to {self.next_status}'
+        return f'Invalid status_flow transition from {self.curr_status} to {self.next_status}'
 
 
 class Status:
@@ -60,6 +60,8 @@ class Status:
             initial_status: The initial status.
             rules: A dictionary defining the rules for transitions.
         """
+        if initial_status not in rules:
+            raise TransitionException(None, initial_status)
         self.rules = rules
         self.current = initial_status
         self.prev = None
@@ -77,6 +79,8 @@ class Status:
         Raises:
             TransitionException: If the transition is not allowed.
         """
+        if next_status not in self.rules:
+            raise TransitionException(self.current, next_status)
         legal_statuses = self.rules[self.current].get('next', [])
         if '*' in legal_statuses or next_status in legal_statuses:
             callbacks = self.rules[next_status].get(CALLBACK_KEY, [])
